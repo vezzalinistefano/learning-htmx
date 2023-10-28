@@ -1,0 +1,36 @@
+<!--index.tmpl-->
+{{ define "new_contact" }}
+{{ template "header" .}}
+    <h1>New Contact</h1>
+        <form action="/contacts/new" method="post">
+            <fieldset>
+                <legend>Contact Values</legend>
+                <p>
+                    <label for="email">Email</label>
+                    <input name="email" id="email" type="email" placeholder="email" value="{{ .email }}">
+                    <span class="error">Error</span>
+                </p>
+                <p>
+                    <label for="first">First Name</label>
+                    <input name="first" id="first" type="text" placeholder="first" value="{{ .first }}">
+                    <span class="error">Error</span>
+                </p>
+                <p>
+                    <label for="last">Last name</label>
+                    <input name="last" id="last" type="text" placeholder="last" value="{{ .last }}">
+                    <span class="error">Error</span>
+                </p>
+                <p>
+                    <label for="phone">Phone</label>
+                    <input name="phone" id="phone" type="text" placeholder="phone" value="{{ .phone }}">
+                    <span class="error">Error</span>
+                </p>
+                <button>Save</button>
+            </fieldset>
+        </form>
+
+        <p>
+            <a href="/contacts">Back</a>
+        </p>
+{{ template "footer" . }}
+{{end}}

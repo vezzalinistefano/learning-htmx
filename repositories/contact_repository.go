@@ -18,6 +18,8 @@ func init() {
 	ContactsRepository.contacts = append(ContactsRepository.contacts, models.Contact{Id: 3, First: "Carol", Last: "Williams", Phone: "+1-777-777-7777", Email: "carol.williams@example.com"})
 }
 
+// Private Methods
+
 func (c *contactRepository) search(query string) []models.Contact {
 	var r []models.Contact
 	for _, contact := range c.contacts {
@@ -28,10 +30,16 @@ func (c *contactRepository) search(query string) []models.Contact {
 	return r
 }
 
+// Public Methods
+
 func (c *contactRepository) GetAll(query string) []models.Contact {
 	if query == "" {
 		return c.contacts
 	} else {
 		return c.search(query)
 	}
+}
+
+func (c *contactRepository) InsertContact(contact models.Contact) {
+	c.contacts = append(c.contacts, contact)
 }
