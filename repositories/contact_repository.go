@@ -31,6 +31,15 @@ func (c *contactRepository) search(query string) []models.Contact {
 	return r
 }
 
+func (c *contactRepository) getIndexById(id int) (*int, error) {
+    for idx, contact := range c.contacts {
+        if contact.Id == id {
+            return &idx, nil
+        }
+    }
+    return nil, errors.New("Contact not found!")
+}
+
 // Public Methods
 
 func (c *contactRepository) GetAll(query string) []models.Contact {
@@ -52,4 +61,12 @@ func (c *contactRepository) GetByContactID(id int) (*models.Contact, error) {
 
 func (c *contactRepository) InsertContact(contact models.Contact) {
 	c.contacts = append(c.contacts, contact)
+}
+
+func (c *contactRepository) EditContact(contact models.Contact) {
+    if idx, err := c.getIndexById(contact.Id); err == nil {
+        c.contacts[*idx] = contact;
+    } else {
+        return
+    }
 }

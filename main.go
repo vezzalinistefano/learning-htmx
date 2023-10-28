@@ -60,6 +60,38 @@ func main() {
 
 	})
 
+	router.POST("/contacts/:contact_id/edit", func(ctx *gin.Context) {
+		contact := &models.Contact{}
+		if err := ctx.ShouldBind(contact); err != nil {
+			ctx.String(http.StatusBadRequest, "Bad request: %v", err)
+			return
+		}
+
+		if contactID, err := strconv.Atoi(ctx.Param("contact_id")); err == nil {
+            contact.Id = contactID
+            contactRepository.EditContact(*contact)
+        }
+		ctx.Redirect(http.StatusFound, "/contacts")
+	})
+
+	router.GET("/contacts/:contact_id/edit", func(ctx *gin.Context) {
+		if contactID, err := strconv.Atoi(ctx.Param("contact_id")); err == nil {
+			if contact, err := contactRepository.GetByContactID(contactID); err == nil {
+				ctx.HTML(
+					http.StatusFound,
+					"edit_contact",
+					gin.H{
+						"payload": contact,
+					},
+				)
+			} else {
+				ctx.AbortWithError(http.StatusNotFound, err)
+			}
+		} else {
+			ctx.AbortWithStatus(http.StatusNotFound)
+		}
+	})
+
 	router.POST("/contacts/new", func(ctx *gin.Context) {
 		contact := &models.Contact{}
 		if err := ctx.ShouldBind(contact); err != nil {

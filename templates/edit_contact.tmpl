@@ -1,32 +1,39 @@
-<!--new_contact.tmpl-->
-{{ define "new_contact" }}
+<!--edit_contact.tmpl-->
+{{ define "edit_contact" }}
 {{ template "header" .}}
-    <h1>New Contact</h1>
-        <form action="/contacts/new" method="post">
+    <h1>Edit Contact</h1>
+    <h2>{{ .payload.First }} {{ .payload.Last }}</h2>
+        <form action="/contacts/{{ .payload.Id }}/edit" method="post">
             <fieldset>
                 <legend>Contact Values</legend>
                 <p>
                     <label for="email">Email</label>
-                    <input name="email" id="email" type="email" placeholder="email" value="{{ .email }}">
+                    <input name="email" id="email" type="email" placeholder="email" value="{{ .payload.Email }}">
                     <span class="error">Error</span>
                 </p>
                 <p>
                     <label for="first">First Name</label>
-                    <input name="first" id="first" type="text" placeholder="first" value="{{ .first }}">
+                    <input name="first" id="first" type="text" placeholder="first" value="{{ .payload.First }}">
                     <span class="error">Error</span>
                 </p>
                 <p>
                     <label for="last">Last name</label>
-                    <input name="last" id="last" type="text" placeholder="last" value="{{ .last }}">
+                    <input name="last" id="last" type="text" placeholder="last" value="{{ .payload.Last }}">
                     <span class="error">Error</span>
                 </p>
                 <p>
                     <label for="phone">Phone</label>
-                    <input name="phone" id="phone" type="text" placeholder="phone" value="{{ .phone }}">
+                    <input name="phone" id="phone" type="text" placeholder="phone" value="{{ .payload.Phone }}">
                     <span class="error">Error</span>
                 </p>
                 <button>Save</button>
             </fieldset>
+        </form>
+
+        <br>
+
+        <form action="/contacts/{{ .payload.Id }}/delete" method="post">
+            <button>Delete Contact</button>
         </form>
 
         <p>
