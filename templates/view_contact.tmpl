@@ -1,0 +1,15 @@
+<!--index.tmpl-->
+{{ define "view_contact" }}
+{{ template "header" .}}
+    <h1>Contact</h1>
+    <h2>{{ .payload.First }} {{ .payload.Last }}</h2>
+    <div>
+        <div>Phone: {{ .payload.Phone }}</div>
+        <div>Email: {{ .payload.Email }}</div>
+
+        <p>
+            <a href="/contacts/{{ .Id }}/edit">Edit</a>
+            <a href="/contacts">Back</a>
+        </p>
+{{ template "footer" . }}
+{{end}}

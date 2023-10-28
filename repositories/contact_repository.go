@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/vezzalinistefano/learning-htmx/models"
@@ -38,6 +39,15 @@ func (c *contactRepository) GetAll(query string) []models.Contact {
 	} else {
 		return c.search(query)
 	}
+}
+
+func (c *contactRepository) GetByContactID(id int) (*models.Contact, error) {
+    for _, contact := range c.contacts {
+        if contact.Id == id {
+            return &contact, nil
+        }
+    }
+    return nil, errors.New("Contact not found!")
 }
 
 func (c *contactRepository) InsertContact(contact models.Contact) {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -38,6 +39,25 @@ func main() {
 			"new_contact",
 			gin.H{},
 		)
+	})
+
+	router.GET("/contacts/:contact_id/view", func(ctx *gin.Context) {
+		if contactID, err := strconv.Atoi(ctx.Param("contact_id")); err == nil {
+			if contact, err := contactRepository.GetByContactID(contactID); err == nil {
+				ctx.HTML(
+					http.StatusOK,
+					"view_contact",
+					gin.H{
+						"payload": contact,
+					},
+				)
+			} else {
+				ctx.AbortWithError(http.StatusNotFound, err)
+			}
+		} else {
+			ctx.AbortWithStatus(http.StatusNotFound)
+		}
+
 	})
 
 	router.POST("/contacts/new", func(ctx *gin.Context) {
