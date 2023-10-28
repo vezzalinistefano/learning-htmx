@@ -18,12 +18,14 @@ func main() {
 	})
 
 	router.GET("/contacts", func(ctx *gin.Context) {
+		query := ctx.Query("q")
 		ctx.HTML(
 			http.StatusOK,
 			"index",
 			gin.H{
 				"title":   "Contacts",
-				"payload": contactRepository.GetAll(),
+				"payload": contactRepository.GetAll(query),
+				"q":       query,
 			},
 		)
 	})
