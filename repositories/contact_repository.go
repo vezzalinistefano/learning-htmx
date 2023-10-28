@@ -32,12 +32,12 @@ func (c *contactRepository) search(query string) []models.Contact {
 }
 
 func (c *contactRepository) getIndexById(id int) (*int, error) {
-    for idx, contact := range c.contacts {
-        if contact.Id == id {
-            return &idx, nil
-        }
-    }
-    return nil, errors.New("Contact not found!")
+	for idx, contact := range c.contacts {
+		if contact.Id == id {
+			return &idx, nil
+		}
+	}
+	return nil, errors.New("Contact not found!")
 }
 
 // Public Methods
@@ -51,12 +51,12 @@ func (c *contactRepository) GetAll(query string) []models.Contact {
 }
 
 func (c *contactRepository) GetByContactID(id int) (*models.Contact, error) {
-    for _, contact := range c.contacts {
-        if contact.Id == id {
-            return &contact, nil
-        }
-    }
-    return nil, errors.New("Contact not found!")
+	for _, contact := range c.contacts {
+		if contact.Id == id {
+			return &contact, nil
+		}
+	}
+	return nil, errors.New("Contact not found!")
 }
 
 func (c *contactRepository) InsertContact(contact models.Contact) {
@@ -64,9 +64,17 @@ func (c *contactRepository) InsertContact(contact models.Contact) {
 }
 
 func (c *contactRepository) EditContact(contact models.Contact) {
-    if idx, err := c.getIndexById(contact.Id); err == nil {
-        c.contacts[*idx] = contact;
-    } else {
-        return
-    }
+	if idx, err := c.getIndexById(contact.Id); err == nil {
+		c.contacts[*idx] = contact
+	} else {
+		return
+	}
+}
+
+func (c *contactRepository) DeleteContactById(id int) {
+	if idx, err := c.getIndexById(id); err == nil {
+		c.contacts = append(c.contacts[:*idx], c.contacts[*idx+1:]...)
+	} else {
+		return
+	}
 }

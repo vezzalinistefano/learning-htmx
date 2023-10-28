@@ -68,9 +68,9 @@ func main() {
 		}
 
 		if contactID, err := strconv.Atoi(ctx.Param("contact_id")); err == nil {
-            contact.Id = contactID
-            contactRepository.EditContact(*contact)
-        }
+			contact.Id = contactID
+			contactRepository.EditContact(*contact)
+		}
 		ctx.Redirect(http.StatusFound, "/contacts")
 	})
 
@@ -99,6 +99,16 @@ func main() {
 			return
 		}
 		contactRepository.InsertContact(*contact)
+		ctx.Redirect(http.StatusFound, "/contacts")
+	})
+
+	router.POST("/contacts/:contact_id/delete", func(ctx *gin.Context) {
+		if contactID, err := strconv.Atoi(ctx.Param("contact_id")); err == nil {
+			contactRepository.DeleteContactById(contactID)
+		} else {
+			ctx.AbortWithStatus(http.StatusNotFound)
+		}
+
 		ctx.Redirect(http.StatusFound, "/contacts")
 	})
 
