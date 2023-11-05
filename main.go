@@ -102,14 +102,14 @@ func main() {
 		ctx.Redirect(http.StatusFound, "/contacts")
 	})
 
-	router.POST("/contacts/:contact_id/delete", func(ctx *gin.Context) {
+    router.DELETE("/contacts/:contact_id/delete", func(ctx *gin.Context) {
 		if contactID, err := strconv.Atoi(ctx.Param("contact_id")); err == nil {
 			contactRepository.DeleteContactById(contactID)
 		} else {
 			ctx.AbortWithStatus(http.StatusNotFound)
 		}
 
-		ctx.Redirect(http.StatusFound, "/contacts")
+		ctx.Redirect(http.StatusSeeOther, "/")
 	})
 
 	router.Run(":8080")
