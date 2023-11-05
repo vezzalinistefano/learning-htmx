@@ -1,8 +1,13 @@
 package repositories
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
+
+	"io/fs"
+	"os"
 
 	"github.com/vezzalinistefano/learning-htmx/models"
 )
@@ -14,30 +19,30 @@ type contactRepository struct {
 var ContactsRepository contactRepository
 
 func init() {
-	ContactsRepository.contacts = append(ContactsRepository.contacts, models.Contact{
-		Id:     1,
-		First:  "Alice",
-		Last:   "Smith",
-		Phone:  "+1-555-555-5555",
-		Email:  "alice.smith@example.com",
-		Errors: map[string]string{},
-	})
-	ContactsRepository.contacts = append(ContactsRepository.contacts, models.Contact{
-		Id:     2,
-		First:  "Bob",
-		Last:   "Jones",
-		Phone:  "+1-666-666-6666",
-		Email:  "bob.jones@example.com",
-		Errors: map[string]string{},
-	})
-	ContactsRepository.contacts = append(ContactsRepository.contacts, models.Contact{
-        Id: 3, 
-        First: "Carol", 
-        Last: "Williams", 
-        Phone: "+1-777-777-7777", 
-        Email: "carol.williams@example.com",
-        Errors: map[string]string{},
-    })
+	jsonData, err := os.ReadFile("./data.json")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = json.Unmarshal(jsonData, &ContactsRepository.contacts)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func (c *contactRepository) storeToJson() error {
+	jsonBytes, err := json.Marshal(c.contacts)
+	if err != nil {
+        fmt.Println("Unable to write to json")
+		return errors.New("Unable to store to JSON file")
+	}
+
+    fmt.Println("Saved to JSON")
+	_ = os.WriteFile("./data.json", jsonBytes, fs.FileMode(0644))
+	return nil
+
 }
 
 // Private Methods
@@ -81,7 +86,13 @@ func (c *contactRepository) GetByContactID(id int) (*models.Contact, error) {
 }
 
 func (c *contactRepository) InsertContact(contact models.Contact) {
+    contact.Id = len(c.contacts) + 1
 	c.contacts = append(c.contacts, contact)
+
+    err := c.storeToJson()
+    if err != nil {
+        return
+    }
 }
 
 func (c *contactRepository) EditContact(contact models.Contact) {
