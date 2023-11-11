@@ -18,6 +18,8 @@ type contactRepository struct {
 
 var ContactsRepository contactRepository
 
+const pageSize = 10
+
 func init() {
 	jsonData, err := os.ReadFile("./data.json")
 	if err != nil {
@@ -68,9 +70,14 @@ func (c *contactRepository) getIndexById(id int) (*int, error) {
 
 // Public Methods
 
-func (c *contactRepository) GetAll(query string) []models.Contact {
+func (c *contactRepository) GetAll(query string, page int) []models.Contact {
 	if query == "" {
-		return c.contacts
+        start := (page - 1) * pageSize
+        end := start + pageSize
+        if end >= len(c.contacts) {
+            end = len(c.contacts) - 1
+        }
+        return c.contacts[start:end]
 	} else {
 		return c.search(query)
 	}

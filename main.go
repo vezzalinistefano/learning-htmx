@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"strconv"
+	"text/template"
 
 	"github.com/gin-gonic/gin"
 
@@ -12,6 +13,11 @@ import (
 
 func main() {
 	router := gin.Default()
+	router.SetFuncMap(template.FuncMap{
+		"add": func(a int, b int) int {
+			return a + b
+		},
+	})
 	router.LoadHTMLGlob("templates/*")
 
 	contactRepository := repositories.ContactsRepository
@@ -22,13 +28,18 @@ func main() {
 
 	router.GET("/contacts", func(ctx *gin.Context) {
 		query := ctx.Query("q")
+		page, err := strconv.Atoi(ctx.Query("page"))
+		if err != nil {
+			page = 1
+		}
 		ctx.HTML(
 			http.StatusOK,
 			"index",
 			gin.H{
 				"title":   "Contacts",
-				"payload": contactRepository.GetAll(query),
+				"payload": contactRepository.GetAll(query, page),
 				"q":       query,
+				"page":    page,
 			},
 		)
 	})
@@ -102,7 +113,7 @@ func main() {
 		ctx.Redirect(http.StatusFound, "/contacts")
 	})
 
-    router.DELETE("/contacts/:contact_id/delete", func(ctx *gin.Context) {
+	router.DELETE("/contacts/:contact_id/delete", func(ctx *gin.Context) {
 		if contactID, err := strconv.Atoi(ctx.Param("contact_id")); err == nil {
 			contactRepository.DeleteContactById(contactID)
 		} else {
