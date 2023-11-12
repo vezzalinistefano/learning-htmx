@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"text/template"
@@ -13,6 +14,7 @@ import (
 
 func main() {
 	router := gin.Default()
+	router.Static("/static", "./static")
 	router.SetFuncMap(template.FuncMap{
 		"add": func(a int, b int) int {
 			return a + b
@@ -28,17 +30,37 @@ func main() {
 
 	router.GET("/contacts", func(ctx *gin.Context) {
 		query := ctx.Query("q")
+		var payload []models.Contact
+
 		page, err := strconv.Atoi(ctx.Query("page"))
 		if err != nil {
 			page = 1
+		}
+
+		if query != "" {
+			payload = contactRepository.Search(query)
+			if ctx.GetHeader("HX-Trigger") == "search" {
+				ctx.HTML(
+					http.StatusOK,
+					"rows",
+					gin.H{
+						"title":   "Contacts",
+						"payload": payload,
+						"query":   query,
+						"page":    page,
+					},
+				)
+				return
+			}
+		} else {
+			payload = contactRepository.GetAll(page)
 		}
 		ctx.HTML(
 			http.StatusOK,
 			"index",
 			gin.H{
 				"title":   "Contacts",
-				"payload": contactRepository.GetAll(query, page),
-				"q":       query,
+				"payload": payload,
 				"page":    page,
 			},
 		)
@@ -113,7 +135,7 @@ func main() {
 		ctx.Redirect(http.StatusFound, "/contacts")
 	})
 
-	router.DELETE("/contacts/:contact_id/delete", func(ctx *gin.Context) {
+	router.DELETE("/contacts/:contact_id", func(ctx *gin.Context) {
 		if contactID, err := strconv.Atoi(ctx.Param("contact_id")); err == nil {
 			contactRepository.DeleteContactById(contactID)
 		} else {
@@ -121,6 +143,45 @@ func main() {
 		}
 
 		ctx.Redirect(http.StatusSeeOther, "/")
+	})
+
+	router.POST("/contacts", func(ctx *gin.Context) {
+		toDeleteContactIDs := models.DeleteContactIds{}
+		err := ctx.ShouldBind(&toDeleteContactIDs)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, err)
+		}
+
+		for _, id := range toDeleteContactIDs.Ids {
+			if id, err := strconv.Atoi(id); err == nil {
+				contactRepository.DeleteContactById(id)
+			} else {
+				ctx.JSON(http.StatusBadRequest, err)
+                return
+			}
+		}
+
+        page := 1
+        payload := contactRepository.GetAll(page)
+        
+		ctx.HTML(
+			http.StatusFound,
+			"index",
+			gin.H{
+				"title":   "Contacts",
+				"payload": payload,
+				"page":    page,
+			},
+		)
+
+	})
+
+	router.GET("/contacts/count", func(ctx *gin.Context) {
+		count := contactRepository.Count()
+		ctx.String(
+			http.StatusOK,
+			fmt.Sprintf("(%d total Contacts)", count),
+		)
 	})
 
 	router.Run(":8080")

@@ -18,7 +18,7 @@ type contactRepository struct {
 
 var ContactsRepository contactRepository
 
-const pageSize = 10
+const pageSize = 50
 
 func init() {
 	jsonData, err := os.ReadFile("./data.json")
@@ -37,27 +37,17 @@ func init() {
 func (c *contactRepository) storeToJson() error {
 	jsonBytes, err := json.Marshal(c.contacts)
 	if err != nil {
-        fmt.Println("Unable to write to json")
+		fmt.Println("Unable to write to json")
 		return errors.New("Unable to store to JSON file")
 	}
 
-    fmt.Println("Saved to JSON")
+	fmt.Println("Saved to JSON")
 	_ = os.WriteFile("./data.json", jsonBytes, fs.FileMode(0644))
 	return nil
 
 }
 
 // Private Methods
-
-func (c *contactRepository) search(query string) []models.Contact {
-	var r []models.Contact
-	for _, contact := range c.contacts {
-		if strings.Contains(contact.First, query) || strings.Contains(contact.Last, query) {
-			r = append(r, contact)
-		}
-	}
-	return r
-}
 
 func (c *contactRepository) getIndexById(id int) (*int, error) {
 	for idx, contact := range c.contacts {
@@ -70,17 +60,27 @@ func (c *contactRepository) getIndexById(id int) (*int, error) {
 
 // Public Methods
 
-func (c *contactRepository) GetAll(query string, page int) []models.Contact {
-	if query == "" {
-        start := (page - 1) * pageSize
-        end := start + pageSize
-        if end >= len(c.contacts) {
-            end = len(c.contacts) - 1
-        }
-        return c.contacts[start:end]
-	} else {
-		return c.search(query)
+func (c *contactRepository) Count() int {
+    return len(c.contacts)
+}
+
+func (c *contactRepository) Search(query string) []models.Contact {
+	var r []models.Contact
+	for _, contact := range c.contacts {
+		if strings.Contains(contact.First, query) || strings.Contains(contact.Last, query) {
+			r = append(r, contact)
+		}
 	}
+	return r
+}
+
+func (c *contactRepository) GetAll(page int) []models.Contact {
+	start := (page - 1) * pageSize
+	end := start + pageSize
+	if end >= len(c.contacts) {
+		end = len(c.contacts) - 1
+	}
+	return c.contacts[start:end]
 }
 
 func (c *contactRepository) GetByContactID(id int) (*models.Contact, error) {
@@ -93,13 +93,13 @@ func (c *contactRepository) GetByContactID(id int) (*models.Contact, error) {
 }
 
 func (c *contactRepository) InsertContact(contact models.Contact) {
-    contact.Id = len(c.contacts) + 1
+	contact.Id = len(c.contacts) + 1
 	c.contacts = append(c.contacts, contact)
 
-    err := c.storeToJson()
-    if err != nil {
-        return
-    }
+	err := c.storeToJson()
+	if err != nil {
+		return
+	}
 }
 
 func (c *contactRepository) EditContact(contact models.Contact) {

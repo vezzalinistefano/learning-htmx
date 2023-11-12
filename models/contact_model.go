@@ -8,3 +8,7 @@ type Contact struct {
 	Email  string `json:"email" form:"email"`
 	Errors map[string]string
 }
+
+type DeleteContactIds struct {
+    Ids  []string  `form:"selected_contact_ids" binding:"required"` 
+}

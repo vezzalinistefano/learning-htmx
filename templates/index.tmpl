@@ -1,47 +1,61 @@
 <!--index.tmpl-->
 {{ define "index" }}
+
 {{ template "header" .}}
+
     <h1>Contacts</h1>
         <form action="/contacts" method="get" class="tool-bar">
             <label for="search">Search Term</label>
-            <input id="search" type="search" name="q" value="{{ .q }}"/>
+            <input id="search" type="search" name="q" value="{{ .q }}"
+                   hx-get="/contacts"
+                   hx-trigger="search, keyup delay:200ms changed"
+                   hx-target="tbody"
+                   hx-push-url="true"
+                   hx-indicator="#spinning"/>
+            <img id="spinner" class="htmx-indicator" src="/static/img/spinning-circles.svg"
+                 alt="Request in flight..."/>
             <input type="submit" value="Search"/>
         </form>
-        <br>
-        <table>
-            <thead>
-            <tr>
-                <th>First</th> <th>Last</th> <th>Phone</th> <th>Email</th> <th></th>
-            <tr>
-            </thead>
-            <tbody>
-            {{ range .payload }}
+
+        <form>
+            <table>
+                <thead>
                 <tr>
-                    <td>{{ .First }}</td>
-                    <td>{{ .Last }}</td>
-                    <td>{{ .Phone }}</td>
-                    <td>{{ .Email }}</td>
-                    <td><a href="/contacts/{{ .Id }}/edit">Edit</a>
-                        <a href="/contacts/{{ .Id }}/view">View</a>
-                        </td>
+                    <th></th>
+                    <th>First</th>
+                    <th>Last</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th></th>
+                <tr>
+                </thead>
+                <tbody>
+                {{ template "rows" . }}
+               <!-- {{ if (eq (len .payload) 10) }}
+                <tr>
+                    <td colspan="5" style="text-align: center">
+                        <button hx-target="closest tr"
+                                hx-trigger="revealed"
+                                hx-swap="outerHTML"
+                                hx-select="tbody > tr"
+                                hx-get="/contacts?page={{ add .page 1 }}">
+                                Load More
+                                </button>
+                    </td>
                 </tr>
-            {{ end }}
-            {{ if (eq (len .payload) 10) }}
-            <tr>
-                <td colspan="5" style="text-align: center">
-                    <button hx-target="closest tr"
-                            hx-swap="outerHTML"
-                            hx-select="tbody > tr"
-                            hx-get="/contacts?page={{ add .page 1 }}">
-                            Load More
-                            </button>
-                </td>
-            </tr>
-            {{ end }}
-            </tbody>
-        </table>
+                {{ end }} -->
+                </tbody>
+            </table>
+            <button hx-post="/contacts"
+                    hx-confirm="Are you sure you want to delete those contacts?"
+                    hx-target="body">
+                Delete Selected contacts
+            </button>
+        </form>
         <p>
-            <a href="/contacts/new">Add Contact</a>
+            <a href="/contacts/new">Add Contact</a> <span hx-get="/contacts/count" hx-trigger="revealed"></span>
         </p>
+
 {{ template "footer" . }}
+
 {{end}}
